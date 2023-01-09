@@ -19,7 +19,7 @@
                 @Html.DisplayNameFor(model => model.LastName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Avatar)
+                @*@Html.DisplayNameFor(model => model.Avatar)*@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Email)
@@ -30,15 +30,16 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
+                <td>
+                    <img src="@item.Avatar" alt="profile image">
+                </td>
             <td>
                 @Html.DisplayFor(modelItem => item.FirstName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.LastName)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Avatar)
-            </td>
+            
             <td>
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
