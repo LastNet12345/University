@@ -17,5 +17,18 @@ namespace University.Data.Data
         public DbSet<University.Core.Course> Course { get; set; } = default!;
 
         public DbSet<University.Core.Student> Student { get; set; } = default!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            //FluentAPI goes here
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Student>()
+                .HasMany(s => s.Courses)
+                .WithMany(c => c.Students)
+                .UsingEntity<Enrollment>(
+                    e => e.HasOne(e => e.Course).WithMany(c => c.Enrollments),
+                    e => e.HasOne(e => e.Student).WithMany(s => s.Enrollments));
+        }
     }
 }

@@ -14,5 +14,6 @@ namespace University.Core
 
         // Navigation properties
         public ICollection<Student> Students { get; set; }
+        public ICollection<Enrollment> Enrollments { get; set; }
     }
 }

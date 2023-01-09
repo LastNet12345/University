@@ -10,6 +10,27 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<UniversityContext>();
+
+
+    db.Database.EnsureDeleted();
+    db.Database.Migrate();
+
+    try
+    {
+        await SeedData.InitAsync(db);
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e.Message);
+        throw;
+    }
+}
+
+
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
