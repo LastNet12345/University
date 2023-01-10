@@ -1,5 +1,6 @@
 ﻿namespace University.Models
 {
+#nullable disable
     public class StudentIndexViewModel
     {
         public int Id { get; set; }

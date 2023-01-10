@@ -2,29 +2,46 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Bogus;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using University.Core;
 using University.Data.Data;
+using University.Models;
 
 namespace University.Controllers
 {
     public class StudentsController : Controller
     {
         private readonly UniversityContext _context;
+        private readonly IMapper mapper;
+        private readonly Faker faker = new Faker("sv");
 
-        public StudentsController(UniversityContext context)
+        public StudentsController(UniversityContext context, IMapper mapper)
         {
             _context = context;
+            this.mapper = mapper;
         }
 
         // GET: Students
         public async Task<IActionResult> Index()
         {
-              return _context.Student != null ? 
-                          View(await _context.Student.ToListAsync()) :
-                          Problem("Entity set 'UniversityContext.Student'  is null.");
+            //var viewModel = await _context.Student.Select(s => new StudentIndexViewModel
+            //{
+            //    Id = s.Id,
+            //    Avatar = s.Avatar,
+            //    FirstName = s.FirstName,
+            //    LastName = s.LastName,
+            //    AddressStreet = s.Address.Street
+            //}).ToListAsync();
+
+            var viewModel = await mapper.ProjectTo<StudentIndexViewModel>(_context.Student)
+                .OrderByDescending(s => s.Id)
+                .ToListAsync();
+
+            return View(viewModel);
         }
 
         // GET: Students/Details/5
@@ -45,26 +62,41 @@ namespace University.Controllers
             return View(student);
         }
 
-        // GET: Students/Create
+
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Students/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,Avatar,Email")] Student student)
+        public async Task<IActionResult> Create(StudentCreateViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
+                //var student = new Student
+                //{
+                //    FirstName= viewModel.FirstName,
+                //    LastName= viewModel.LastName,
+                //    Email= viewModel.Email,
+                //    Avatar = faker.Internet.Avatar(),
+                //    Address = new Address
+                //    {
+                //        Street = viewModel.AddressStreet,
+                //        City = viewModel.AddressCity,
+                //        ZipCode = viewModel.AddressZipCode
+                //    }
+                //};
+
+                var student = mapper.Map<Student>(viewModel);
+                student.Avatar = faker.Internet.Avatar();
+
                 _context.Add(student);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(student);
+            return View(viewModel);
         }
 
         // GET: Students/Edit/5
