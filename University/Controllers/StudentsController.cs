@@ -7,6 +7,7 @@ using Bogus;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using University.Core;
 using University.Data.Data;
 using University.Models;
@@ -52,8 +53,9 @@ namespace University.Controllers
                 return NotFound();
             }
 
-            var student = await _context.Student
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var student = await mapper.ProjectTo<StudentDetailsViewModel>(_context.Student)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
             if (student == null)
             {
                 return NotFound();
@@ -107,7 +109,10 @@ namespace University.Controllers
                 return NotFound();
             }
 
-            var student = await _context.Student.FindAsync(id);
+            var student = await mapper.ProjectTo<StudentEditViewModel>(_context.Student)
+                                      .FirstOrDefaultAsync(s => s.Id == id);
+
+
             if (student == null)
             {
                 return NotFound();
@@ -120,9 +125,9 @@ namespace University.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FirstName,LastName,Avatar,Email")] Student student)
+        public async Task<IActionResult> Edit(int id, StudentEditViewModel viewModel)
         {
-            if (id != student.Id)
+            if (id != viewModel.Id)
             {
                 return NotFound();
             }
@@ -131,12 +136,18 @@ namespace University.Controllers
             {
                 try
                 {
+
+                    var student = await _context.Student.Include(s => s.Address)
+                        .FirstOrDefaultAsync(s => s.Id == id);
+
+                    mapper.Map(viewModel, student);
+
                     _context.Update(student);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!StudentExists(student.Id))
+                    if (!StudentExists(viewModel.Id))
                     {
                         return NotFound();
                     }
@@ -147,7 +158,7 @@ namespace University.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(student);
+            return View(viewModel);
         }
 
         // GET: Students/Delete/5
