@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using University.Core;
 using University.Data.Data;
+using University.Filters;
 using University.Models;
 
 namespace University.Controllers
@@ -73,10 +74,11 @@ namespace University.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ModelValidationFilter]
         public async Task<IActionResult> Create(StudentCreateViewModel viewModel)
         {
-            if (ModelState.IsValid)
-            {
+            //if (ModelState.IsValid)
+            //{
                 //var student = new Student
                 //{
                 //    FirstName= viewModel.FirstName,
@@ -97,8 +99,8 @@ namespace University.Controllers
                 _context.Add(student);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
-            return View(viewModel);
+            //}
+            //return View(viewModel);
         }
 
         // GET: Students/Edit/5
@@ -204,5 +206,15 @@ namespace University.Controllers
         {
           return (_context.Student?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+
+        public async Task<IActionResult> CheckIfEmailIsUnique(string email) //<< Name must match name of property 
+        {
+            if (await _context.Student.AnyAsync(s => s.Email == email))
+            {
+                return Json("There is already a student with that email!");
+            }
+            return Json(true);
+        } 
+
     }
 }

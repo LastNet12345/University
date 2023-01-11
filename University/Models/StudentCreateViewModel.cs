@@ -15,6 +15,7 @@ namespace University.Models
         public string LastName { get; set; }
 
         [EmailAddress]
+        [Remote(action: "CheckIfEmailIsUnique", controller: "Students")]
         public string Email { get; set; }
         public string AddressStreet { get; set; }
         public string AddressZipCode { get; set; }
