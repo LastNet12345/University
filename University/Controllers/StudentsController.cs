@@ -142,6 +142,8 @@ namespace University.Controllers
 
                     mapper.Map(viewModel, student);
 
+                    //_context.Entry(student).Property("Edited").CurrentValue = DateTime.Now;
+
                     _context.Update(student);
                     await _context.SaveChangesAsync();
                 }
