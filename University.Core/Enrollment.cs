@@ -8,7 +8,8 @@ namespace University.Core
 {
     public class Enrollment
     {
-        public int Id { get; set; }
+        //Bad idea in this case
+        //public int Id { get; set; }
 
 
         public int Grade { get; set; } // This is a payload
